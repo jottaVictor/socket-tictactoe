@@ -2,8 +2,6 @@ export default interface connectMessage{
     type: string;
     data: {
         idPlayer: string,
-        aliasPlayer: string,
-        idRoom?: number,
-        roomPassword?: string
+        idRoom: number
     }
 }

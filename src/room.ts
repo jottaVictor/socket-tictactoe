@@ -1,15 +1,18 @@
-import Game, { indexPlayer } from "../game-logic/game"
-import GameConfig from "./game-config"
+import Game, { indexPlayer } from "#src/game-logic/game.js"
+import GameConfig from "#interfaces/game-config"
+import { GenericReturn } from "#utils/interfaces"
 
 export default class Room{
     public isPublic: boolean
-    private game: Game
+    public game: Game
     private password: string | null
+    private clients: Array<WebSocket>
 
     constructor(isPublic: boolean, password = ''){
         this.isPublic = isPublic
         this.game = new Game(null, 0, true)
         this.password = password
+        this.clients = []
     }
 
     setConfigGame(timeLimitByPlayer: number | null, indexPlayerFirst: indexPlayer){
@@ -20,15 +23,19 @@ export default class Room{
         return this.game.isFull()
     }
 
-    join(aliasPLayer: string | null, idPlayer: string | null){
+    join(aliasPLayer: string | null, idPlayer: string){
         this.game.joinInGame(aliasPLayer, idPlayer)
     }
 
-    getGame(): Game{
-        return this.game
+    leave(idPlayer: string){
+        this.game.leavePlayer(idPlayer)
     }
 
-    validPassword(password: string): boolean{
+    isValidPassword(password: string): boolean{
         return true
+    }
+
+    leavePlayer(idPlayer: string): GenericReturn{
+        return this.game.leavePlayer(idPlayer)
     }
 }

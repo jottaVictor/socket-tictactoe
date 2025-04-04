@@ -1,4 +1,5 @@
-export default class Connector {
+import Room from '#src/room.js';
+export default class ListnerConnectGame {
     constructor(rooms) {
         this.rooms = rooms;
     }
@@ -32,34 +33,39 @@ export default class Connector {
             if (room.isPublic) {
                 room.join(connMessage.aliasPLayer, (_a = connMessage.idPlayer) !== null && _a !== void 0 ? _a : null);
                 returnObj.message = "Conectado com successo!";
-                returnObj.data = room.getGame();
+                returnObj.data = room.game;
                 returnObj.code = 3;
                 returnObj.success = true;
                 return returnObj;
             }
-            if (connMessage.roomPassword && room.validPassword(connMessage.roomPassword)) {
+            if (connMessage.roomPassword && room.isValidPassword(connMessage.roomPassword)) {
                 room.join(connMessage.aliasPLayer, (_b = connMessage.idPlayer) !== null && _b !== void 0 ? _b : null);
                 returnObj.message = "Conectado com successo!";
-                returnObj.data = room.getGame();
+                returnObj.data = room.game;
                 returnObj.code = 4;
                 returnObj.success = true;
                 return returnObj;
             }
             returnObj.message = "A sala não é pública, senha incorreta.";
-            returnObj.data = room.getGame();
+            returnObj.data = room.game;
             returnObj.code = 5;
             return returnObj;
         }
         for (const room of this.rooms) {
+            console.log(room.isFull());
             if (room.isPublic && !room.isFull()) {
                 room.join(connMessage.aliasPLayer, (_c = connMessage.idPlayer) !== null && _c !== void 0 ? _c : null);
                 returnObj.message = "Conectado com successo!";
-                returnObj.data = room.getGame();
+                returnObj.data = room.game;
                 returnObj.code = 6;
                 returnObj.success = true;
                 return returnObj;
             }
         }
+        const room = new Room(true);
+        this.rooms.push(room);
+        returnObj.message = "Nova sala criada!";
+        returnObj.data = room.game;
         return returnObj;
     }
 }

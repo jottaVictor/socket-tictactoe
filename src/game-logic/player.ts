@@ -1,5 +1,5 @@
-import { GenericReturn } from '@utils/interfaces'
-import PError from '@utils/pError'
+import { GenericReturn } from '#utils/interfaces'
+import PError from '#utils/pError'
 export default class Player{
     readonly id: string
     readonly alias: string | null
@@ -20,16 +20,16 @@ export default class Player{
             message: '',
             data: null,
             code: null,
-            sucess: false            
+            success: false            
         }
         let valid: GenericReturn;
         
         valid = this.validateTurn()
         
-        if(!valid.sucess){
+        if(!valid.success){
             returnObj.message = valid.message
             returnObj.code = 0
-            returnObj.sucess = false
+            returnObj.success = false
 
             return returnObj
         }
@@ -38,14 +38,14 @@ export default class Player{
 
         if (this.timeLimit === null){
             returnObj.code = 1
-            returnObj.sucess = true
+            returnObj.success = true
 
             return returnObj
         }
 
         valid = this.validateTimePlayed(timePlayed);
 
-        if(!valid.sucess){
+        if(!valid.success){
             returnObj = {...valid}
             returnObj.code = 2
             
@@ -54,7 +54,7 @@ export default class Player{
 
         valid = this.updateTimeLimit(timePlayed);
         
-        if(!valid.sucess){
+        if(!valid.success){
             returnObj = {...valid}
             returnObj.code = 3
 
@@ -62,7 +62,7 @@ export default class Player{
         }
 
         returnObj.code = 4
-        returnObj.sucess = true
+        returnObj.success = true
 
         return returnObj
     }
@@ -72,16 +72,16 @@ export default class Player{
             message: '',
             code: 0,
             data: null,
-            sucess: false
+            success: false
         }
 
         if (!this.isMyTime) {
             returnObj.message = `Não é a vez do jogador ${this.alias ?? ''}!`
             returnObj.code = 0
-            returnObj.sucess = false
+            returnObj.success = false
         }else{
             returnObj.code = 1
-            returnObj.sucess = true
+            returnObj.success = true
         }
 
         return returnObj
@@ -92,16 +92,16 @@ export default class Player{
             message: '',
             data: null,
             code: null,
-            sucess: false            
+            success: false            
         }
 
         if (timePlayed === null || this.timeStarted === null) {
             returnObj.message = "Erro de lógica na passagem dos tempos"
             returnObj.code = 0
-            returnObj.sucess = false
+            returnObj.success = false
         }else{
             returnObj.code = 1
-            returnObj.sucess = true
+            returnObj.success = true
         }
 
         return returnObj
@@ -112,7 +112,7 @@ export default class Player{
             message: '',
             code: 0,
             data: null,
-            sucess: false
+            success: false
         }
 
         const timeSpent = timePlayed - this.timeStarted!;
@@ -121,10 +121,10 @@ export default class Player{
         if (this.timeLimit! < 0) {
             returnObj.message = "Tempo limite gasto."
             returnObj.code = 0
-            returnObj.sucess = false
+            returnObj.success = false
         }else{
             returnObj.code = 1
-            returnObj.sucess = true
+            returnObj.success = true
         }
         
         return returnObj

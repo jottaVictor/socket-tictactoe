@@ -15,12 +15,12 @@ export default class Connector{
             message: '', 
             data: null,
             code: null,
-            sucess: false            
+            success: false            
         }
 
         if("connectPlayerInGame" !== message.type){
             returnObj.code = 0
-            returnObj.sucess = false
+            returnObj.success = false
             return returnObj
         }
 
@@ -47,10 +47,10 @@ export default class Connector{
             if(room.isPublic){
                 room.join(connMessage.aliasPLayer, connMessage.idPlayer ?? null )
                 
-                returnObj.message = "Conectado com sucesso!"
+                returnObj.message = "Conectado com successo!"
                 returnObj.data = room.getGame()
                 returnObj.code = 3
-                returnObj.sucess = true
+                returnObj.success = true
 
                 return returnObj
             }
@@ -58,10 +58,10 @@ export default class Connector{
             if(connMessage.roomPassword && room.validPassword(connMessage.roomPassword)){
                 room.join(connMessage.aliasPLayer, connMessage.idPlayer ?? null )
                 
-                returnObj.message = "Conectado com sucesso!"
+                returnObj.message = "Conectado com successo!"
                 returnObj.data = room.getGame()
                 returnObj.code = 4
-                returnObj.sucess = true
+                returnObj.success = true
 
                 return returnObj
             }
@@ -77,10 +77,10 @@ export default class Connector{
             if(room.isPublic && !room.isFull()){
                 room.join(connMessage.aliasPLayer, connMessage.idPlayer ?? null )
                     
-                returnObj.message = "Conectado com sucesso!"
+                returnObj.message = "Conectado com successo!"
                 returnObj.data = room.getGame()
                 returnObj.code = 6
-                returnObj.sucess = true
+                returnObj.success = true
 
                 return returnObj
             }

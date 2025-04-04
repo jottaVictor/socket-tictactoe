@@ -1,5 +1,5 @@
-import Player from './player';
-import { generateId } from '@utils/utils';
+import Player from './player.js';
+import { generateId } from "#utils/utils.js";
 export var indexPlayer;
 (function (indexPlayer) {
     indexPlayer[indexPlayer["First"] = 0] = "First";
@@ -28,7 +28,7 @@ export default class Game {
         return newPlayer;
     }
     isFull() {
-        return (this.players[0] === null || this.players[1] === null);
+        return !(this.players[0] === null || this.players[1] === null);
     }
     getIndexPlayerById(id) {
         var _a, _b;
@@ -36,23 +36,23 @@ export default class Game {
             message: '',
             data: null,
             code: 0,
-            sucess: false
+            success: false
         };
         if (((_a = this.players[0]) === null || _a === void 0 ? void 0 : _a.id) === id) {
             returnObj.data = 0;
             returnObj.code = 0;
-            returnObj.sucess = true;
+            returnObj.success = true;
             return returnObj;
         }
         if (((_b = this.players[1]) === null || _b === void 0 ? void 0 : _b.id) === id) {
             returnObj.data = 1;
             returnObj.code = 0;
-            returnObj.sucess = true;
+            returnObj.success = true;
             return returnObj;
         }
         returnObj.message = "O jogador não faz parte do jogo!";
         returnObj.code = 1;
-        returnObj.sucess = false;
+        returnObj.success = false;
         return returnObj;
     }
     getIndexOpposingPlayerById(id) {
@@ -61,23 +61,23 @@ export default class Game {
             message: '',
             data: null,
             code: 0,
-            sucess: false
+            success: false
         };
         if (((_a = this.players[0]) === null || _a === void 0 ? void 0 : _a.id) === id && this.players[1] !== null) {
             returnObj.data = 1;
             returnObj.code = 0;
-            returnObj.sucess = true;
+            returnObj.success = true;
             return returnObj;
         }
         if (((_b = this.players[1]) === null || _b === void 0 ? void 0 : _b.id) === id && this.players[0] !== null) {
             returnObj.data = 0;
             returnObj.code = 0;
-            returnObj.sucess = true;
+            returnObj.success = true;
             return returnObj;
         }
         returnObj.message = "Não foi achado um jogador oponente!";
         returnObj.code = 1;
-        returnObj.sucess = false;
+        returnObj.success = false;
         return returnObj;
     }
     startGame() {
@@ -92,35 +92,35 @@ export default class Game {
             message: '',
             data: null,
             code: 0,
-            sucess: false
+            success: false
         };
         let valid;
         if (this.winnerID || this.finish) {
             //dps ajeitar esse acesso ao alias do player vencedor
             returnObj.message = `O jogo já terminou. ${this.winnerID ? `O ganhador foi ${this.players[this.getIndexPlayerById(this.winnerID).data].alias}` : 'Terminou empatado!'}`;
             returnObj.code = 0;
-            returnObj.sucess = false;
+            returnObj.success = false;
             return returnObj;
         }
-        if (!(valid = this.getIndexPlayerById(idPlayer)).sucess) {
+        if (!(valid = this.getIndexPlayerById(idPlayer)).success) {
             returnObj = Object.assign({}, returnObj);
             returnObj.code = 1;
             return returnObj;
         }
         const indexCurrentPlayer = valid.data;
         const currentPlayer = this.players[indexCurrentPlayer];
-        if (!(valid = this.getIndexOpposingPlayerById(idPlayer)).sucess) {
+        if (!(valid = this.getIndexOpposingPlayerById(idPlayer)).success) {
             returnObj = Object.assign({}, returnObj);
             returnObj.code = 2;
             return returnObj;
         }
         const opposingPlayerById = this.players[valid.data];
-        if (!(valid = this.validateField(row, col)).sucess) {
+        if (!(valid = this.validateField(row, col)).success) {
             returnObj = Object.assign({}, valid);
             returnObj.code = 3;
             return returnObj;
         }
-        if (!(valid = currentPlayer.play(Date.now())).sucess) {
+        if (!(valid = currentPlayer.play(Date.now())).success) {
             if (valid.code === 3) {
                 this.winnerID = opposingPlayerById.id;
                 this.finish = true;
@@ -140,14 +140,14 @@ export default class Game {
             returnObj.code = 6;
             return returnObj;
         }
-        if (resultEndGame.sucess) {
+        if (resultEndGame.success) {
             this.finish = true;
             returnObj = Object.assign({}, resultEndGame);
             returnObj.code = 5;
             return resultEndGame;
         }
         returnObj.code = 7;
-        returnObj.sucess = true;
+        returnObj.success = true;
         return returnObj;
     }
     validateField(row, col) {
@@ -155,17 +155,17 @@ export default class Game {
             message: '',
             data: null,
             code: 0,
-            sucess: false
+            success: false
         };
         if (this.board[row][col] !== null) {
             returnObj.message = "A posição já foi preenchida, jogue em uma posição válida!";
             returnObj.code = 0;
-            returnObj.sucess = false;
+            returnObj.success = false;
         }
         else {
             returnObj.message = "";
             returnObj.code = 1;
-            returnObj.sucess = true;
+            returnObj.success = true;
         }
         return returnObj;
     }
@@ -175,7 +175,7 @@ export default class Game {
             message: '',
             code: 0,
             data: null,
-            sucess: false
+            success: false
         };
         let winnerSymbols = [];
         let hasFieldsToPlay = false;
@@ -204,7 +204,7 @@ export default class Game {
                     returnObj.message = `O jogador ${(winnerSymbols[k] + 1)} ganhou!`;
                     returnObj.code = 0;
                     returnObj.data = (_a = this.players[winnerSymbols[k]]) === null || _a === void 0 ? void 0 : _a.id;
-                    returnObj.sucess = true;
+                    returnObj.success = true;
                     return returnObj;
                 }
             }
@@ -212,7 +212,7 @@ export default class Game {
         if (!hasFieldsToPlay) {
             returnObj.message = "O jogo deu velha! Não há mais campos para preencher";
             returnObj.code = 1;
-            returnObj.sucess = true;
+            returnObj.success = true;
             return returnObj;
         }
         returnObj.code = 2;
