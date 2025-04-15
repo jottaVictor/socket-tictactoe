@@ -3,7 +3,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import WebSocketGameHandler from './routes/game/websocket-game-handler.js';
 
 const wss = new WebSocketServer({ port: config.PORT });
-const gameHandler = new WebSocketGameHandler(wss);
+const gameHandler = new WebSocketGameHandler();
 
 const routes: Record<string, (ws: WebSocket, req: any) => void> = {
     "/game": (ws: WebSocket, req: any): void => {

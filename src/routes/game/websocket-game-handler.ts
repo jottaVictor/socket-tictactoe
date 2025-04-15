@@ -5,20 +5,21 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { measureMemory } from "vm";
 import Disconnector from "./listeners/disconnector.js";
 import RoomEditor from "./listeners/room-editor.js";
+import Markafield from "./listeners/markafield.js";
 
 export default class WebSocketGameHandler{
     private rooms: Record<string, Room>
     private __Connector: Connector
     private __Disconnector: Disconnector
     private __RoomEditor: RoomEditor
-    private wss: WebSocketServer
+    private __Markafield: Markafield
 
-    constructor(wss: WebSocketServer){
+    constructor(){
         this.rooms = {}
         this.__Connector = new Connector(this.rooms)
         this.__Disconnector = new Disconnector(this.rooms)
         this.__RoomEditor = new RoomEditor(this.rooms)
-        this.wss = wss
+        this.__Markafield = new Markafield(this.rooms)
     }
 
     public handler(ws: WebSocket, req: any){
@@ -45,9 +46,21 @@ export default class WebSocketGameHandler{
 
         const resultConn = this.__Connector.listener(message, ws)
         const resultEdit = this.__RoomEditor.listener(message, ws)
+        const marker     = this.__Markafield.listener(message, ws)
+
         if(resultConn.code !== 0){
             ws.send(JSON.stringify(resultConn))
             console.log('Enviada', resultConn)
+        }
+
+        if(resultEdit.code !== 0){
+            console.log('Enviada', resultEdit)
+
+            if(resultEdit.code === 3){
+                this.sendForAllConnectedInTheSameRoom(resultEdit, (ws as any).playerData.idRoom)
+            }else{
+                ws.send(JSON.stringify(resultEdit))
+            }
         }
 
         if(resultEdit.code !== 0){

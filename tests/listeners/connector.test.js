@@ -5,7 +5,7 @@ module.exports = {
     runInBand: true,
 }
 
-//run npm run test tests/src/connector.test.js 
+//run npm run test tests/listeners/connector.test.js 
 
 // this test require the server to be restarted
 

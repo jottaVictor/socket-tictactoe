@@ -274,7 +274,6 @@ export default class Game{
         let valid: GenericReturn
 
         if(this.winnerID || this.finish){
-            //dps ajeitar esse acesso ao alias do player vencedor
             returnObj.message = "O jogo já terminou."
             returnObj.code = 0
             returnObj.success = false

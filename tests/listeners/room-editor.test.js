@@ -5,7 +5,7 @@ module.exports = {
     runInBand: true,
 }
 
-//run npm run test tests/src/room-editor.test.js 
+//run npm run test tests/listeners/room-editor.test.js 
 
 test("a player create a room and edit it so that others dont enter", (done) => {
     const socket1 = new WebSocket('ws://localhost:5000/game')

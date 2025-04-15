@@ -21,13 +21,13 @@ export default class Room{
     isOwner(idPlayer: string){
         return idPlayer === this.idOwnerPlayer
     }
-
+    
     setConfigRoom(idOwnerPlayer: string, isPublic: boolean, password: string | null){
         this.idOwnerPlayer = idOwnerPlayer
         this.isPublic = isPublic
         this.password = password
     }
-
+    
     setConfigGame(timeLimitByPlayer: number | null, idPlayerFirst: string){
         this.game.setConfigGame(timeLimitByPlayer, idPlayerFirst)
     }
@@ -39,10 +39,20 @@ export default class Room{
     isEmpty(): boolean{
         return this.game.isEmpty()
     }
-
+    
     join(idPlayer: string, aliasPLayer: string | null, ws: WebSocket){
         this.game.joinInGame(idPlayer, aliasPLayer)
         this.clients.push(ws)
+    }
+    
+    removeClientByIdPlayer(idPlayer: string) {
+        const index = this.clients.findIndex((item) => {
+            return (item as any).playerData.idPlayer === idPlayer;
+        });
+    
+        if (index !== -1) {
+            this.clients.splice(index, 1)
+        }
     }
 
     isInRoom(idPlayer: string){
@@ -91,10 +101,6 @@ export default class Room{
 
     isValidPassword(password: string): boolean{
         return password === this.password || password === null
-    }
-
-    removeClientByIdPlayer(idPlayer: string){
-        this.clients = this.clients.filter((ws) => { return (ws as any).playerData?.idPlayer !== idPlayer })
     }
 
     sendMessageForAllClients(message: GenericMessage){
