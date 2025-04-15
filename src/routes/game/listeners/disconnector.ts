@@ -13,7 +13,6 @@ export default class Disconnector extends GameListener{
             const idPlayer = (ws as any).playerData.idPlayer
             
             console.log("tentando desconectar o jogador " + (ws as any).playerData.idPlayer + " da sala " + idRoom)
-            console.dir('Listando salas: ', this.rooms)
         
             this.rooms[idRoom].removeClientByIdPlayer(idPlayer)
             
@@ -24,6 +23,9 @@ export default class Disconnector extends GameListener{
                     delete this.rooms[idRoom]
                     console.log(`Sala ${idRoom} excluida por falta de Player. Restam agora ${Object.keys(this.rooms).length} salas`);
                 }
+
+            console.log('Listando salas: ')
+            console.dir(this.rooms)
         }            
     }
 }

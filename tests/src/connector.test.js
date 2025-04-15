@@ -1,14 +1,11 @@
-const { create } = require('domain')
 const WebSocket = require('ws')
 
-// jest.setTimeout(10000)
-
 module.exports = {
-    // ...
     maxWorkers: 1,
-    // ou
     runInBand: true,
 }
+
+//run npm run test tests/src/connector.test.js 
 
 // this test require the server to be restarted
 

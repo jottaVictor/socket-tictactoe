@@ -46,18 +46,20 @@ export default class RoomEditor extends GameListener{
 
         const getterOpponent = room.game.getIdOpponentById(idPlayer)
 
-        if(__EditRoomMessage.game.firstPlayer === PlayerReference.opponent && !getterOpponent.success){
-            returnObj.message = "Você não tem um adversário"
+        if((__EditRoomMessage.game.firstPlayer !== PlayerReference.self || __EditRoomMessage.room.ownerPlayer !== PlayerReference.self) && !getterOpponent.success){
+            returnObj.message = "A configuração não pode ser salva. Você não tem um adversário"
             returnObj.code = 3
             
             return createListnerReturn(type, returnObj)
         }
 
         room.setConfigGame(__EditRoomMessage.game.timeLimitByPlayer, (__EditRoomMessage.game.firstPlayer === PlayerReference.self ? idPlayer : getterOpponent.data))
-        room.setConfigRoom(__EditRoomMessage.room.idOwnerPlayer, __EditRoomMessage.room.isPublic, __EditRoomMessage.room.password)
+        room.setConfigRoom((__EditRoomMessage.room.ownerPlayer === PlayerReference.self ? idPlayer : getterOpponent.data), __EditRoomMessage.room.isPublic, __EditRoomMessage.room.password)
 
         returnObj.message = "Sala configurada com sucesso"
-        returnObj.data = room.game
+        returnObj.data = {
+            room
+        }
         returnObj.code = 4
         returnObj.success = true
         

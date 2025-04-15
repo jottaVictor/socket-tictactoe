@@ -37,7 +37,7 @@ export default class Connector extends GameListener{
             return createListnerReturn(type, returnObj)
         }
 
-        if("idRoom" in connData){
+        if(connData && "idRoom" in connData){
             const room = this.rooms[connData.idRoom!]
 
             if (!room) {

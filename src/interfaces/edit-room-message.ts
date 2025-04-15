@@ -11,7 +11,7 @@ export default interface EditRoomMessage{
             firstPlayer: PlayerReference
         },
         room: {
-            idOwnerPlayer: PlayerReference
+            ownerPlayer: PlayerReference
             isPublic: boolean,
             password: string
         }
