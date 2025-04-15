@@ -52,7 +52,7 @@ export default class Player{
             return returnObj
         }
 
-        valid = this.updateTimeLimit(timePlayed);
+        valid = this.updateTimeLimit(timePlayed!);
         
         if(!valid.success){
             returnObj = {...valid}

@@ -1,9 +1,10 @@
-export default interface connectMessage{
+export default interface ConnectMessage{
     type: string;
     data: {
+        createRoom: boolean,
         idPlayer: string,
         aliasPlayer: string,
-        idRoom?: number,
+        idRoom?: string,
         roomPassword?: string
     }
 }

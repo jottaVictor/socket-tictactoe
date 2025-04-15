@@ -1,7 +1,7 @@
-export default interface connectMessage{
+export default interface DisconnectMessage{
     type: string;
     data: {
         idPlayer: string,
-        idRoom: number
+        idRoom: string
     }
 }

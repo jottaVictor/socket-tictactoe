@@ -1,24 +1,38 @@
 import Player from './player.js';
-import { generateId } from "#utils/utils.js";
+import { createGenericReturn } from '#utils/interfaces.js';
 export var indexPlayer;
 (function (indexPlayer) {
     indexPlayer[indexPlayer["First"] = 0] = "First";
     indexPlayer[indexPlayer["Second"] = 1] = "Second";
 })(indexPlayer || (indexPlayer = {}));
 export default class Game {
-    constructor(timeLimitByPlayer, indexPlayerFirst, isOnline) {
-        this.timeLimitByPlayer = timeLimitByPlayer;
+    constructor(isOnline) {
+        this.timeLimitByPlayer = null;
         this.board = Array.from({ length: 3 }, () => Array(3).fill(null));
         this.players = [null, null];
-        this.indexPlayerFirst = indexPlayerFirst;
+        this.idPlayerFirst = null;
         this.winnerID = null;
+        this.started = false;
         this.finish = false;
         this.isOnline = isOnline;
     }
-    joinInGame(alias, id) {
+    setConfigGame(timeLimitByPlayer, idPlayerFirst) {
+        this.timeLimitByPlayer = timeLimitByPlayer;
+        this.idPlayerFirst = idPlayerFirst;
+    }
+    setIdPlayerFirst(idPlayer) {
+        this.idPlayerFirst = idPlayer;
+    }
+    getBoard() {
+        return this.board;
+    }
+    joinInGame(idPlayer, alias) {
         if (this.players[0] !== null && this.players[1] !== null)
             throw new Error("O jogo já está lotado.");
-        const newPlayer = new Player(id || generateId(), alias, this.timeLimitByPlayer, null, false);
+        if (idPlayer && this.isInGame(idPlayer)) {
+            throw new Error("O jogador já está no jogo.");
+        }
+        const newPlayer = new Player(idPlayer, alias, this.timeLimitByPlayer, null, false);
         if (this.players[0] === null) {
             this.players[0] = newPlayer;
         }
@@ -27,10 +41,31 @@ export default class Game {
         }
         return newPlayer;
     }
+    leavePlayer(idPlayer) {
+        const returnIndexPlayer = this.getIndexPlayerById(idPlayer);
+        if (returnIndexPlayer.code === 1) {
+            return {
+                message: "O jogador não está no jogo",
+                code: 0,
+                data: null,
+                success: false
+            };
+        }
+        this.players[returnIndexPlayer.data] = null;
+        return {
+            message: "Jogador desconectado com sucesso",
+            code: 1,
+            data: null,
+            success: true
+        };
+    }
     isFull() {
         return !(this.players[0] === null || this.players[1] === null);
     }
-    getIndexPlayerById(id) {
+    isEmpty() {
+        return this.players[0] === null && this.players[1] === null;
+    }
+    getIndexPlayerById(idPlayer) {
         var _a, _b;
         let returnObj = {
             message: '',
@@ -38,13 +73,13 @@ export default class Game {
             code: 0,
             success: false
         };
-        if (((_a = this.players[0]) === null || _a === void 0 ? void 0 : _a.id) === id) {
+        if (((_a = this.players[0]) === null || _a === void 0 ? void 0 : _a.id) === idPlayer) {
             returnObj.data = 0;
             returnObj.code = 0;
             returnObj.success = true;
             return returnObj;
         }
-        if (((_b = this.players[1]) === null || _b === void 0 ? void 0 : _b.id) === id) {
+        if (((_b = this.players[1]) === null || _b === void 0 ? void 0 : _b.id) === idPlayer) {
             returnObj.data = 1;
             returnObj.code = 0;
             returnObj.success = true;
@@ -55,7 +90,7 @@ export default class Game {
         returnObj.success = false;
         return returnObj;
     }
-    getIndexOpposingPlayerById(id) {
+    getIndexOpposingPlayerById(idPlayer) {
         var _a, _b;
         let returnObj = {
             message: '',
@@ -63,13 +98,13 @@ export default class Game {
             code: 0,
             success: false
         };
-        if (((_a = this.players[0]) === null || _a === void 0 ? void 0 : _a.id) === id && this.players[1] !== null) {
+        if (((_a = this.players[0]) === null || _a === void 0 ? void 0 : _a.id) === idPlayer && this.players[1] !== null) {
             returnObj.data = 1;
             returnObj.code = 0;
             returnObj.success = true;
             return returnObj;
         }
-        if (((_b = this.players[1]) === null || _b === void 0 ? void 0 : _b.id) === id && this.players[0] !== null) {
+        if (((_b = this.players[1]) === null || _b === void 0 ? void 0 : _b.id) === idPlayer && this.players[0] !== null) {
             returnObj.data = 0;
             returnObj.code = 0;
             returnObj.success = true;
@@ -80,12 +115,89 @@ export default class Game {
         returnObj.success = false;
         return returnObj;
     }
+    getPlayerById(idPlayer) {
+        var _a, _b;
+        let returnObj = {
+            message: '',
+            data: null,
+            code: 0,
+            success: false
+        };
+        if (((_a = this.players[0]) === null || _a === void 0 ? void 0 : _a.id) === idPlayer) {
+            returnObj.data = this.players[0];
+            returnObj.code = 0;
+            returnObj.success = true;
+            return returnObj;
+        }
+        if (((_b = this.players[1]) === null || _b === void 0 ? void 0 : _b.id) === idPlayer) {
+            returnObj.data = this.players[1];
+            returnObj.code = 0;
+            returnObj.success = true;
+            return returnObj;
+        }
+        returnObj.message = "O jogador não faz parte do jogo!";
+        returnObj.code = 1;
+        returnObj.success = false;
+        return returnObj;
+    }
+    getIdOpponentById(idPlayer) {
+        var _a;
+        const returnObj = createGenericReturn();
+        if (this.isInGame(idPlayer)) {
+            returnObj.message = "O jogador não está no jogo";
+            return returnObj;
+        }
+        if (!this.isFull()) {
+            returnObj.message = "Sem adversários no jogo";
+            returnObj.code = 1;
+            return returnObj;
+        }
+        if (((_a = this.players[0]) === null || _a === void 0 ? void 0 : _a.id) !== idPlayer) {
+            returnObj.data = this.players[0].id;
+            returnObj.code = 2;
+            returnObj.success = true;
+            return returnObj;
+        }
+        returnObj.data = this.players[1].id;
+        returnObj.code = 3;
+        returnObj.success = true;
+        return returnObj;
+    }
+    isInGame(idPlayer) {
+        return (this.getIndexPlayerById(idPlayer).code !== 1);
+    }
     startGame() {
+        const returnObj = createGenericReturn();
+        if (this.started) {
+            returnObj.message = "O jogo ainda está acontecendo.";
+            return returnObj;
+        }
+        if (!this.isFull()) {
+            returnObj.message = "O jogo deve ter dois jogadores para começar.";
+            returnObj.code = 1;
+            return returnObj;
+        }
+        if (!this.idPlayerFirst) {
+            returnObj.message = "Ainda não foi definido quem será o primeiro a jogar.";
+            returnObj.code = 2;
+            return returnObj;
+        }
+        const returnGetterPlayer = this.getPlayerById(this.idPlayerFirst);
+        if (returnGetterPlayer.code === 1) {
+            returnObj.message = "O primeiro jogador não foi definido";
+            returnObj.code = 3;
+            return returnObj;
+        }
+        this.started = true;
         this.finish = false;
-        const fPlayer = this.players[this.indexPlayerFirst];
-        fPlayer.isMyTime = true;
+        this.board = Array.from({ length: 3 }, () => Array(3).fill(null));
+        returnGetterPlayer.data.isMyTime = true;
         if (this.timeLimitByPlayer)
-            fPlayer.timeStarted = Date.now();
+            returnGetterPlayer.data.timeStarted = Date.now();
+        returnObj.message = "";
+        returnObj.code = 4;
+        returnObj.success = true;
+        return returnObj;
     }
     markAField(idPlayer, row, col) {
         let returnObj = {
@@ -97,7 +209,7 @@ export default class Game {
         let valid;
         if (this.winnerID || this.finish) {
             //dps ajeitar esse acesso ao alias do player vencedor
-            returnObj.message = `O jogo já terminou. ${this.winnerID ? `O ganhador foi ${this.players[this.getIndexPlayerById(this.winnerID).data].alias}` : 'Terminou empatado!'}`;
+            returnObj.message = "O jogo já terminou.";
             returnObj.code = 0;
             returnObj.success = false;
             return returnObj;
