@@ -273,9 +273,16 @@ export default class Game{
 
         let valid: GenericReturn
 
+        if(!this.started){
+            returnObj.message = "O jogo ainda não começou."
+            returnObj.code = 0
+            returnObj.success = false
+            return returnObj
+        }
+
         if(this.winnerID || this.finish){
             returnObj.message = "O jogo já terminou."
-            returnObj.code = 0
+            returnObj.code = 1
             returnObj.success = false
 
             return returnObj
@@ -283,7 +290,7 @@ export default class Game{
 
         if(!(valid = this.getIndexPlayerById(idPlayer)).success){
             returnObj = {...returnObj}
-            returnObj.code = 1
+            returnObj.code = 2
 
             return returnObj
         }
@@ -294,7 +301,7 @@ export default class Game{
 
         if(!(valid = this.getIndexOpposingPlayerById(idPlayer)).success){
             returnObj = {...returnObj}
-            returnObj.code = 2
+            returnObj.code = 3
 
             return returnObj
         }
@@ -303,19 +310,19 @@ export default class Game{
 
         if(!(valid = this.validateField(row, col)).success){
             returnObj = {...valid}
-            returnObj.code = 3
+            returnObj.code = 4
 
             return returnObj
         }
         
         if(!(valid = currentPlayer.play(Date.now())).success){
-            if(valid.code === 3){
+            if(valid.code === 5){
                 this.winnerID = opposingPlayerById.id
                 this.finish = true
             }
 
             returnObj = {...valid}
-            returnObj.code = 4
+            returnObj.code = 6
 
             return returnObj
         }
@@ -332,7 +339,7 @@ export default class Game{
             this.winnerID = resultEndGame.data
 
             returnObj = {...resultEndGame}
-            returnObj.code = 6
+            returnObj.code = 7
 
             return returnObj
         }
@@ -340,12 +347,12 @@ export default class Game{
         if(resultEndGame.success){
             this.finish = true
             returnObj = {...resultEndGame}
-            returnObj.code = 5
+            returnObj.code = 8
 
             return resultEndGame
         }
 
-        returnObj.code = 7
+        returnObj.code = 9
         returnObj.success = true
 
         return returnObj

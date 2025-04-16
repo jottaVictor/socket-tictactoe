@@ -5,9 +5,9 @@ import GameListener from "./game-listener.js"
 import { WebSocket } from "ws"
 import ListenerReturn, { createListnerReturn } from "#interfaces/listener-return.js"
 
-export default class Markafield extends GameListener{    
+export default class Starter extends GameListener{    
     public listener(message: GenericMesssage, ws: WebSocket): ListenerReturn{
-        const type = "markafield"
+        const type = "startGame"
         const returnObj: GenericReturn = {
             message: '', 
             data: null,
@@ -23,31 +23,37 @@ export default class Markafield extends GameListener{
 
         
         if(!this.isInARoom(ws)){
-            returnObj.message = "Primeiro você deve se conectar a uma sala para depois jogar."
+            returnObj.message = "Primeiro você deve se conectar a uma sala para depois inicar uma partida."
             returnObj.code = 1
             
             return createListnerReturn(type, returnObj)
         }
         
-        const markData = (message.data as MarkafieldMesssage['data'])
         const room        = this.rooms[(ws as any).playerData.idRoom]
         const idPlayer    = (ws as any).playerData.idPlayer
+        
+        if(!room.isOwner(idPlayer)){
+            returnObj.message = "Você não tem permissão para iniciar a partida."
+            returnObj.code = 2
 
-        const valid = room.game.markAField(idPlayer, markData.row, markData.column)
+            return createListnerReturn(type, returnObj)
+        }
+
+        const valid = room.game.startGame()
 
         if(valid.success){
-            returnObj.message = "Sucesso ao jogar"
-            returnObj.code = 2
+            returnObj.message = "Partida inciada."
+            returnObj.code = 3
             returnObj.data =  room.game.getBoard()
             returnObj.success = true
 
             return createListnerReturn(type, returnObj)
         }
 
-        //implement logics
+        //implement logics.
         return createListnerReturn(type, {
             ...valid,
-            code: 30 + (valid.code || 0)
+            code: 40 + (valid.code || 0)
         })
     }
 }

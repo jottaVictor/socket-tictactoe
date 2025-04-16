@@ -6,6 +6,7 @@ import { measureMemory } from "vm";
 import Disconnector from "./listeners/disconnector.js";
 import RoomEditor from "./listeners/room-editor.js";
 import Markafield from "./listeners/markafield.js";
+import Starter from "./listeners/starter.js";
 
 export default class WebSocketGameHandler{
     private rooms: Record<string, Room>
@@ -13,6 +14,7 @@ export default class WebSocketGameHandler{
     private __Disconnector: Disconnector
     private __RoomEditor: RoomEditor
     private __Markafield: Markafield
+    private __Starter: Starter
 
     constructor(){
         this.rooms = {}
@@ -20,6 +22,7 @@ export default class WebSocketGameHandler{
         this.__Disconnector = new Disconnector(this.rooms)
         this.__RoomEditor = new RoomEditor(this.rooms)
         this.__Markafield = new Markafield(this.rooms)
+        this.__Starter = new Starter(this.rooms)
     }
 
     public handler(ws: WebSocket, req: any){
@@ -44,33 +47,39 @@ export default class WebSocketGameHandler{
     public listener(message: GenericMessage, ws: WebSocket){
         console.log('Recebida', message)
 
-        const resultConn = this.__Connector.listener(message, ws)
-        const resultEdit = this.__RoomEditor.listener(message, ws)
+        const connector = this.__Connector.listener(message, ws)
+        const editor = this.__RoomEditor.listener(message, ws)
         const marker     = this.__Markafield.listener(message, ws)
+        const starter     = this.__Starter.listener(message, ws)
 
-        if(resultConn.code !== 0){
-            ws.send(JSON.stringify(resultConn))
-            console.log('Enviada', resultConn)
+        if(connector.code !== 0){
+            ws.send(JSON.stringify(connector))
+            console.log('Enviada', connector)
         }
 
-        if(resultEdit.code !== 0){
-            console.log('Enviada', resultEdit)
+        if(editor.code !== 0){
+            console.log('Enviada', editor)
 
-            if(resultEdit.code === 3){
-                this.sendForAllConnectedInTheSameRoom(resultEdit, (ws as any).playerData.idRoom)
-            }else{
-                ws.send(JSON.stringify(resultEdit))
-            }
+            if(editor.success)
+                this.sendForAllConnectedInTheSameRoom(editor, (ws as any).playerData.idRoom)
+            else
+                ws.send(JSON.stringify(editor))
         }
 
-        if(resultEdit.code !== 0){
-            console.log('Enviada', resultEdit)
+        if(marker.code !== 0){
+            console.log('Enviada', marker)
+            if(marker.success)
+                this.sendForAllConnectedInTheSameRoom(marker, (ws as any).playerData.idRoom)
+            else
+                ws.send(JSON.stringify(marker))
+        }
 
-            if(resultEdit.code === 3){
-                this.sendForAllConnectedInTheSameRoom(resultEdit, (ws as any).playerData.idRoom)
-            }else{
-                ws.send(JSON.stringify(resultEdit))
-            }
+        if(starter.code !== 0){
+            console.log('Enviada', starter)
+            if(starter.success)
+                this.sendForAllConnectedInTheSameRoom(starter, (ws as any).playerData.idRoom)
+            else
+                ws.send(JSON.stringify(starter))
         }
     }
 

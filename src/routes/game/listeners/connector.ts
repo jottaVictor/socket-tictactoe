@@ -59,7 +59,8 @@ export default class Connector extends GameListener{
                 
                 returnObj.message = "Conectado com successo!"
                 returnObj.data = {
-                    game: room.game
+                    game: room.game,
+                    playerData: (ws as any).playerData
                 }
                 returnObj.code = 4
                 returnObj.success = true
@@ -72,7 +73,8 @@ export default class Connector extends GameListener{
                 
                 returnObj.message = "Conectado com successo!"
                 returnObj.data = {
-                    game: room.game
+                    game: room.game,
+                    playerData: (ws as any).playerData
                 }
                 
                 room.game
@@ -118,7 +120,8 @@ export default class Connector extends GameListener{
                     
                 returnObj.message = "Conectado com successo!"
                 returnObj.data = returnObj.data = {
-                    game: room.game
+                    game: room.game,
+                    playerData: (ws as any).playerData
                 }
                 returnObj.code = 8
                 returnObj.success = true
