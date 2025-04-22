@@ -8,7 +8,12 @@ module.exports = {
 //run npm run test tests/listeners/markafield.test.js 
 test('player try start but is not connected', (done) => {
     const socket1 = new WebSocket("ws://localhost:5000/game")
-    
+
+    const doneTest = () => {
+        socket1.close()
+        done()
+    }
+     
     socket1.on('open', () => {
         socket1.on('message', (message) => {
             let _message = JSON.parse(message.toString())
@@ -18,7 +23,7 @@ test('player try start but is not connected', (done) => {
             expect(_message.code).toBe(1)
             expect(_message.message).toBe("Primeiro você deve se conectar a uma sala para depois inicar uma partida.")
             
-            done()
+            doneTest()
         })
 
         socket1.send(JSON.stringify({
@@ -83,4 +88,64 @@ test('player try start but dont has permission', (done) => {
             }
         }))
     })
+})
+
+test("player start a match", (done) => {
+    const socket1 = new WebSocket("ws://localhost:5000/game")
+    const socket2 = new WebSocket("ws://localhost:5000/game")
+
+    const doneTest = () => {
+        socket1.close()
+        socket2.close()
+        done()
+    }
+    
+    let idRoomConnect
+    let countConnection = 0
+
+    socket1.on('open', () => {
+        socket1.on('message', (message) => {
+            let _message = JSON.parse(message.toString())
+
+            if(_message.type === 'connectPlayerInGame'){
+                countConnection++
+                if(countConnection == 2){
+                    socket1.send(JSON.stringify({
+                        type: 'startGame'
+                    }))
+                }
+            }
+            
+            if(countConnection == 1)
+                idRoomConnect = _message.data.playerData.idRoom
+
+            if(_message.type === "startGame"){
+                expect(_message.success).toBe(true)
+                expect(_message.message).toBe("Partida inciada.")
+                
+                doneTest()
+            }
+        })
+        
+        socket1.send(JSON.stringify({
+            type: 'connectPlayerInGame',
+            data: {
+                alias: 'player-1',
+                createRoom: true
+            }
+        }))
+    })
+    
+    socket2.on('open', () => {
+        setTimeout(() => {
+            socket2.send(JSON.stringify({
+                type: 'connectPlayerInGame',
+                data: {
+                    alias: 'player-2',
+                    idRoom: idRoomConnect
+                }
+            }))
+        }, 300)
+    })
+    
 })

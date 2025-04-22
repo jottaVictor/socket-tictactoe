@@ -8,6 +8,11 @@ module.exports = {
 //run npm run test tests/listeners/markafield.test.js 
 test('player try mark a field but is not connected', (done) => {
     const socket1 = new WebSocket("ws://localhost:5000/game")
+
+    const doneTest = () => {
+        socket1.close()
+        done()
+    }
     
     socket1.on('open', () => {
         socket1.on('message', (message) => {
@@ -18,7 +23,7 @@ test('player try mark a field but is not connected', (done) => {
             expect(_message.code).toBe(1)
             expect(_message.message).toBe("Primeiro você deve se conectar a uma sala para depois jogar.")
             
-            done()
+            doneTest()
         })
 
         socket1.send(JSON.stringify({
@@ -84,7 +89,6 @@ test('player try mark a field but the game didnt start', (done) => {
                 expect(_message.success).toBe(false)
                 expect(_message.code).toBe(30)
                 expect(_message.message).toBe("O jogo ainda não começou.")
-                
                 doneTest()
             }
         })

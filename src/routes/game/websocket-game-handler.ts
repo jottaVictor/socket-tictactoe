@@ -53,8 +53,12 @@ export default class WebSocketGameHandler{
         const starter     = this.__Starter.listener(message, ws)
 
         if(connector.code !== 0){
-            ws.send(JSON.stringify(connector))
             console.log('Enviada', connector)
+
+            if(connector.success)
+                this.sendForAllConnectedInTheSameRoom(connector, (ws as any).playerData.idRoom)
+            else
+                ws.send(JSON.stringify(connector))
         }
 
         if(editor.code !== 0){
