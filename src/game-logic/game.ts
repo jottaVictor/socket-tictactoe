@@ -91,6 +91,16 @@ export default class Game{
         return this.players[0] === null && this.players[1] === null
     }
 
+    getCountPlayer(): number{
+        let countPlayer = 0
+        this.players.map((item) => {
+            if(item)
+                countPlayer++
+        })
+
+        return countPlayer
+    }
+
     getIndexPlayerById(idPlayer: string): GenericReturn{
         let returnObj: GenericReturn = {
             message: '',

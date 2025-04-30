@@ -9,6 +9,7 @@ export default class Room{
     private clients: Array<WebSocket>
     private idOwnerPlayer: string | null
     private password: string | null
+    private name: string
 
     constructor(isPublic: boolean, password: string | null = null){
         this.isPublic = isPublic
@@ -16,6 +17,16 @@ export default class Room{
         this.password = password
         this.idOwnerPlayer = null
         this.clients = []
+        this.name = 'sala online'
+    }
+
+    getDataCardRoom(): object{
+        return {
+            'isPublic': this.isPublic,
+            'name': this.name,
+            'ownerPlayer': this.getOwnerPlayer(),
+            'countPlayers': this.game.getCountPlayer()
+        }
     }
 
     isOwner(idPlayer: string){
@@ -93,6 +104,10 @@ export default class Room{
 
     setOwner(idPlayer: string){
         this.idOwnerPlayer = idPlayer
+    }
+
+    getOwnerPlayer(){
+        return this.idOwnerPlayer ? this.game.getPlayerById(this.idOwnerPlayer) : null
     }
 
     setIdPlayerFirst(idPlayer: string){
