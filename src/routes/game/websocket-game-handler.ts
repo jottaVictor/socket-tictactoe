@@ -102,10 +102,13 @@ export default class WebSocketGameHandler{
     }
 
     public listenerClose(ws: WebSocket){
-        this.__Disconnector.listener(ws)
+        const disconnector = this.__Disconnector.listener(ws)
+        if((ws as any).playerData?.idRoom)
+            this.sendForAllConnectedInTheSameRoom(disconnector, (ws as any).playerData.idRoom)
     }
 
     public sendForAllConnectedInTheSameRoom(message: GenericMessage, idRoom: string){
-        this.rooms[idRoom].sendMessageForAllClients(message)
+        if(this.rooms[idRoom])
+            this.rooms[idRoom].sendMessageForAllClients(message)
     }
 }
