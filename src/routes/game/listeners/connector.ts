@@ -55,7 +55,7 @@ export default class Connector extends GameListener{
             }
 
             if(room.isPublic){
-                this.joinPlayerInRoom(ws,  generateId(), connData.aliasPlayer, connData.idRoom!)
+                this.joinPlayerInRoom(ws, connData.idPlayer ?? generateId(), connData.aliasPlayer, connData.idRoom!)
                 
                 returnObj.message = "Conectado com successo!"
                 returnObj.data = {
@@ -69,7 +69,7 @@ export default class Connector extends GameListener{
             }
 
             if(connData.roomPassword && room.isValidPassword(connData.roomPassword)){
-                this.joinPlayerInRoom(ws, generateId(), connData.aliasPlayer, connData.idRoom!)
+                this.joinPlayerInRoom(ws, connData.idPlayer ?? generateId(), connData.aliasPlayer, connData.idRoom!)
                 
                 returnObj.message = "Conectado com successo!"
                 returnObj.data = {
@@ -91,8 +91,7 @@ export default class Connector extends GameListener{
         }
 
         if(connData.createRoom){
-            //after the idPlayer will not be generated in the connection
-            const idPlayer = generateId()
+            const idPlayer = connData.idPlayer ?? generateId()
             const room = new Room(true, null)
             const idRoom = 'room' + generateId()
             this.rooms[idRoom] = room
@@ -116,7 +115,7 @@ export default class Connector extends GameListener{
 
         for( const [idRoom, room] of Object.entries(this.rooms) ){
             if(room.isPublic && !room.isFull()){
-                this.joinPlayerInRoom(ws, generateId(), connData.aliasPlayer, idRoom)
+                this.joinPlayerInRoom(ws, connData.idPlayer ?? generateId(), connData.aliasPlayer, idRoom)
                     
                 returnObj.message = "Conectado com successo!"
                 returnObj.data = returnObj.data = {
