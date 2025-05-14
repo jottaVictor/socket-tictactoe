@@ -34,7 +34,7 @@ export default class Disconnector extends GameListener{
             return createListnerReturn(type, {
                 ...leaver,
                 data: {
-                    game: this.rooms[idRoom].game
+                    game: this.rooms[idRoom]?.game ?? null
                 },
                 code: 10 + leaver.code!
             })
