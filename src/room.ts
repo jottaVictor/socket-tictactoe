@@ -1,5 +1,5 @@
 import GenericMessage from "#interfaces/generic-message"
-import Game, { indexPlayer } from "#src/game-logic/game.js"
+import Game from "#src/game-logic/game.js"
 import { GenericReturn, createGenericReturn } from "#utils/interfaces.js"
 import { WebSocket } from "ws"
 
@@ -13,7 +13,7 @@ export default class Room{
 
     constructor(isPublic: boolean, password: string | null = null){
         this.isPublic = isPublic
-        this.game = new Game(true)
+        this.game = new Game()
         this.password = password
         this.idOwnerPlayer = null
         this.clients = []
@@ -24,7 +24,7 @@ export default class Room{
         return {
             'isPublic': this.isPublic,
             'name': this.name,
-            'ownerPlayer': this.getOwnerPlayer(),
+            'ownerPlayer': this.getOwnerPlayer().data,
             'countPlayers': this.game.getCountPlayer()
         }
     }
@@ -107,7 +107,14 @@ export default class Room{
     }
 
     getOwnerPlayer(){
-        return this.idOwnerPlayer ? this.game.getPlayerById(this.idOwnerPlayer) : null
+        let returnObj = createGenericReturn()
+        if(!this.idOwnerPlayer){
+            returnObj.code = 0
+        }else{
+            returnObj = this.game.getPlayerById(this.idOwnerPlayer)
+            returnObj.code! += 10
+        }
+        return returnObj
     }
 
     setIdPlayerFirst(idPlayer: string){

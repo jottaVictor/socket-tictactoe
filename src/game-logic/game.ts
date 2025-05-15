@@ -1,13 +1,7 @@
 import Player from './player.js'
-import { createGenericReturn, GenericReturn } from '#utils/interfaces.js'
-import { generateId } from "#utils/utils.js"
+import { GenericReturn, createGenericReturn } from '#utils/interfaces.js'
 
 type Board = (number | null)[][]
-
-export enum indexPlayer {
-    First = 0,
-    Second = 1
-}
 
 export default class Game{
     private board: Board
@@ -17,9 +11,8 @@ export default class Game{
     private winnerID: string | null
     private started: boolean
     private finish: boolean
-    private isOnline: boolean
 
-    constructor(isOnline: boolean){
+    constructor(){
         this.timeLimitByPlayer = null
         this.board = Array.from({ length: 3 }, () => Array(3).fill(null))
         this.players = [null, null]
@@ -27,7 +20,6 @@ export default class Game{
         this.winnerID = null
         this.started = false
         this.finish = false
-        this.isOnline = isOnline
     }
 
     setConfigGame(timeLimitByPlayer: number | null, idPlayerFirst: string){
@@ -108,7 +100,7 @@ export default class Game{
             code: 0,
             success: false
         }
-
+        
         if(this.players[0]?.id === idPlayer){
             returnObj.data = 0
             returnObj.code = 0
@@ -132,7 +124,7 @@ export default class Game{
         return returnObj
     }
 
-    getIndexOpposingPlayerById(idPlayer: string): GenericReturn{
+    getIndexOpponentPlayerById(idPlayer: string): GenericReturn{
         let returnObj: GenericReturn = {
             message: '',
             data: null,
@@ -195,8 +187,8 @@ export default class Game{
 
     getIdOpponentById(idPlayer: string): GenericReturn{
         const returnObj = createGenericReturn()
-        
-        if(this.isInGame(idPlayer)){
+
+        if(!this.isInGame(idPlayer)){
             returnObj.message = "O jogador não está no jogo"
             return returnObj
         }
@@ -221,6 +213,21 @@ export default class Game{
         return returnObj
     }
 
+    getOpponentPlayerById(idPlayer: string): GenericReturn{
+        const returnObj = createGenericReturn()
+
+        const valid = this.getIdOpponentById(idPlayer)
+        
+        if(!valid.success){
+            return valid
+        }
+
+        returnObj.data = this.getPlayerById(valid.data)
+        returnObj.code = 1
+        returnObj.success = true
+        return returnObj
+    }
+
     isInGame(idPlayer: string): boolean{
         return (this.getIndexPlayerById(idPlayer).code !== 1)
     }
@@ -228,7 +235,7 @@ export default class Game{
     startGame(): GenericReturn{
         const returnObj = createGenericReturn()
 
-        if(this.started){
+        if(this.started && !this.finish){
             returnObj.message = "O jogo ainda está acontecendo."
             
             return returnObj
@@ -260,8 +267,14 @@ export default class Game{
 
         this.started = true
         this.finish = false
+        this.winnerID = null
         this.board = Array.from({ length: 3 }, () => Array(3).fill(null))
         returnGetterPlayer.data.isMyTime = true
+        returnGetterPlayer.data.timeLimit = this.timeLimitByPlayer
+
+        const opponentPlayer = this.getOpponentPlayerById(this.idPlayerFirst).data
+        opponentPlayer.timeLimit = this.timeLimitByPlayer
+        opponentPlayer.isMyTime = false
 
         if(this.timeLimitByPlayer)
             returnGetterPlayer.data.timeStarted = Date.now()
@@ -309,14 +322,14 @@ export default class Game{
 
         const currentPlayer = this.players[indexCurrentPlayer]!
 
-        if(!(valid = this.getIndexOpposingPlayerById(idPlayer)).success){
+        if(!(valid = this.getIndexOpponentPlayerById(idPlayer)).success){
             returnObj = {...returnObj}
             returnObj.code = 3
 
             return returnObj
         }
 
-        const opposingPlayerById = this.players[valid.data]!
+        const opponentPlayerById = this.players[valid.data]!
 
         if(!(valid = this.validateField(row, col)).success){
             returnObj = {...valid}
@@ -326,8 +339,8 @@ export default class Game{
         }
         
         if(!(valid = currentPlayer.play(Date.now())).success){
-            if(valid.code === 5){
-                this.winnerID = opposingPlayerById.id
+            if(valid.code === 3){
+                this.winnerID = opponentPlayerById.id
                 this.finish = true
             }
 
@@ -337,13 +350,14 @@ export default class Game{
             return returnObj
         }
 
-        opposingPlayerById.isMyTime = true
-        opposingPlayerById.timeStarted = Date.now()
+        opponentPlayerById.isMyTime = true
+        opponentPlayerById.timeStarted = Date.now()
 
         this.board[row][col] = indexCurrentPlayer
 
         const resultEndGame = this.checkEndGame()
 
+        
         if(resultEndGame.code === 0){
             this.finish = true
             this.winnerID = resultEndGame.data
@@ -438,7 +452,7 @@ export default class Game{
         }
 
         if(!hasFieldsToPlay){
-            returnObj.message = "O jogo deu velha! Não há mais campos para preencher"
+            returnObj.message = "O jogo deu velha! Não há mais campos para preencher."
             returnObj.code = 1
             returnObj.success = true
 
