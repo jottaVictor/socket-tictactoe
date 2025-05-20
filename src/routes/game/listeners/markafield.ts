@@ -37,7 +37,7 @@ export default class Markafield extends GameListener{
 
         if(valid.success){
             returnObj.message = "Sucesso ao jogar"
-            returnObj.code = 2
+            returnObj.code = 20 + (valid.code || 0)
             returnObj.data =  room.game.getBoard()
             returnObj.success = true
 
